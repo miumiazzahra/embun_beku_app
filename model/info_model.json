@@ -1,0 +1,235 @@
+{
+ "nama_model": "Random Forest",
+ "ambang_prob": 0.16,
+ "ambang_suhu": 2.0,
+ "jumlah_hari_model": 1599,
+ "hari_berpotensi": 30,
+ "per_tahun": {
+  "2021": {
+   "hari": 259,
+   "berpotensi": 1
+  },
+  "2022": {
+   "hari": 318,
+   "berpotensi": 1
+  },
+  "2023": {
+   "hari": 351,
+   "berpotensi": 18
+  },
+  "2024": {
+   "hari": 363,
+   "berpotensi": 9
+  },
+  "2025": {
+   "hari": 308,
+   "berpotensi": 1
+  }
+ },
+ "metrik": [
+  {
+   "model": "Baseline (kemarin dingin)",
+   "recall": 0.433,
+   "precision": 0.433,
+   "F1": 0.433,
+   "F2": 0.433,
+   "PR-AUC": 0.198,
+   "ROC-AUC": 0.711,
+   "ambang_prob": "-"
+  },
+  {
+   "model": "Random Forest",
+   "recall": 0.833,
+   "precision": 0.357,
+   "F1": 0.5,
+   "F2": 0.658,
+   "PR-AUC": 0.459,
+   "ROC-AUC": 0.958,
+   "ambang_prob": 0.16
+  },
+  {
+   "model": "Gradient Boosting",
+   "recall": 0.667,
+   "precision": 0.435,
+   "F1": 0.526,
+   "F2": 0.602,
+   "PR-AUC": 0.459,
+   "ROC-AUC": 0.929,
+   "ambang_prob": 0.16
+  }
+ ],
+ "kinerja_per_tahun": [
+  {
+   "tahun": 2021,
+   "kejadian": 1,
+   "tertangkap": 1,
+   "alarm": 8
+  },
+  {
+   "tahun": 2022,
+   "kejadian": 1,
+   "tertangkap": 1,
+   "alarm": 5
+  },
+  {
+   "tahun": 2023,
+   "kejadian": 18,
+   "tertangkap": 14,
+   "alarm": 31
+  },
+  {
+   "tahun": 2024,
+   "kejadian": 9,
+   "tertangkap": 8,
+   "alarm": 17
+  },
+  {
+   "tahun": 2025,
+   "kejadian": 1,
+   "tertangkap": 1,
+   "alarm": 9
+  }
+ ],
+ "pentingnya_fitur": {
+  "T_21": 0.19890261699244643,
+  "T_min_sore": 0.18059216106743747,
+  "T_min_dini_hari_ini": 0.16960903366500513,
+  "rentang_harian": 0.12115189323357448,
+  "T_mean_sore": 0.0865089182325569,
+  "Td_21": 0.080518167252138,
+  "T_turun_3jam": 0.043768133820188036,
+  "T_turun_sore": 0.04239261510461371,
+  "SR_mean_siang": 0.015190956811433532,
+  "RH_mean_sore": 0.010494377872983622,
+  "WS_mean_sore": 0.010310509862551179,
+  "Selisih_T_Td": 0.008766385702506346,
+  "WS_21": 0.008698437876750745,
+  "RH_21": 0.007366947663654911,
+  "T_15": 0.005460263668177941,
+  "bulan": 0.005371766581804821,
+  "T_max_siang": 0.004896814592176856
+ },
+ "cek_berita": [
+  {
+   "tanggal_berita": "2021-05-10",
+   "T_min_dini_AWS": 3.1,
+   "probabilitas": 0.52,
+   "prediksi_model": "Berpotensi"
+  },
+  {
+   "tanggal_berita": "2021-07-07",
+   "T_min_dini_AWS": 2.4,
+   "probabilitas": 0.25,
+   "prediksi_model": "Berpotensi"
+  },
+  {
+   "tanggal_berita": "2021-07-15",
+   "T_min_dini_AWS": 3.4,
+   "probabilitas": 0.07,
+   "prediksi_model": "Tidak"
+  },
+  {
+   "tanggal_berita": "2021-07-16",
+   "T_min_dini_AWS": 1.7,
+   "probabilitas": 0.66,
+   "prediksi_model": "Berpotensi"
+  },
+  {
+   "tanggal_berita": "2021-07-30",
+   "T_min_dini_AWS": 3.6,
+   "probabilitas": 0.28,
+   "prediksi_model": "Berpotensi"
+  },
+  {
+   "tanggal_berita": "2022-01-04",
+   "T_min_dini_AWS": 4.3,
+   "probabilitas": 0.11,
+   "prediksi_model": "Tidak"
+  },
+  {
+   "tanggal_berita": "2022-06-30",
+   "T_min_dini_AWS": 1.1,
+   "probabilitas": 0.44,
+   "prediksi_model": "Berpotensi"
+  },
+  {
+   "tanggal_berita": "2022-07-25",
+   "T_min_dini_AWS": null,
+   "probabilitas": null,
+   "prediksi_model": "tidak ada data"
+  },
+  {
+   "tanggal_berita": "2022-07-26",
+   "T_min_dini_AWS": 2.4,
+   "probabilitas": 0.17,
+   "prediksi_model": "Berpotensi"
+  },
+  {
+   "tanggal_berita": "2023-03-13",
+   "T_min_dini_AWS": 2.8,
+   "probabilitas": 0.02,
+   "prediksi_model": "Tidak"
+  },
+  {
+   "tanggal_berita": "2024-05-29",
+   "T_min_dini_AWS": 5.8,
+   "probabilitas": 0.01,
+   "prediksi_model": "Tidak"
+  },
+  {
+   "tanggal_berita": "2025-04-28",
+   "T_min_dini_AWS": 6.2,
+   "probabilitas": null,
+   "prediksi_model": "tidak ada data"
+  },
+  {
+   "tanggal_berita": "2025-07-10",
+   "T_min_dini_AWS": 4.0,
+   "probabilitas": 0.14,
+   "prediksi_model": "Tidak"
+  },
+  {
+   "tanggal_berita": "2025-07-19",
+   "T_min_dini_AWS": 2.4,
+   "probabilitas": 0.48,
+   "prediksi_model": "Berpotensi"
+  },
+  {
+   "tanggal_berita": "2025-07-20",
+   "T_min_dini_AWS": 1.3,
+   "probabilitas": 0.33,
+   "prediksi_model": "Berpotensi"
+  },
+  {
+   "tanggal_berita": "2025-07-21",
+   "T_min_dini_AWS": 3.7,
+   "probabilitas": 0.6,
+   "prediksi_model": "Berpotensi"
+  },
+  {
+   "tanggal_berita": "2025-07-27",
+   "T_min_dini_AWS": 5.2,
+   "probabilitas": 0.09,
+   "prediksi_model": "Tidak"
+  }
+ ],
+ "fitur": [
+  "T_15",
+  "T_21",
+  "T_min_sore",
+  "T_mean_sore",
+  "RH_21",
+  "RH_mean_sore",
+  "WS_21",
+  "WS_mean_sore",
+  "Td_21",
+  "T_turun_3jam",
+  "T_turun_sore",
+  "Selisih_T_Td",
+  "T_max_siang",
+  "SR_mean_siang",
+  "rentang_harian",
+  "T_min_dini_hari_ini",
+  "bulan"
+ ]
+}
