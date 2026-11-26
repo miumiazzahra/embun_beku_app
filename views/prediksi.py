@@ -7,6 +7,7 @@ import streamlit as st
 from components.charts import gauge_skor, grafik_hari
 from components.notifikasi import (IKON, REKOMENDASI, WARNA, catat_riwayat, pesan_peringatan,
                                    tampilkan_banner, tgl_id)
+from core import arsip as ar
 from core import data as dt
 from core import pipeline as pl
 from core.config import CONTOH_DIR
@@ -66,9 +67,6 @@ def _hitung_dan_tampil(df, f, tanggal, paket, sumber, sampai_besok=False):
         with st.expander("📋 Pesan peringatan siap salin (untuk grup petani / WhatsApp)"):
             st.code(pesan_peringatan(hasil), language=None)
 
-    unduh = {k: (str(v) if isinstance(v, pd.Timestamp) else v) for k, v in hasil.items()}
-    st.download_button("⬇️ Unduh hasil (CSV)", data=pd.DataFrame([unduh]).to_csv(index=False),
-                       file_name=f"prediksi_{hasil['tanggal_data']:%Y-%m-%d}.csv", mime="text/csv")
     return hasil
 
 
@@ -96,6 +94,24 @@ def _pemantauan_langsung(df, ambang_suhu):
     st.caption("24 jam terakhir di file: " + (ringkas + " (jumlah data 10 menit)" if ringkas else "tidak ada kondisi di bawah ambang."))
     st.caption(f"Aturan (Jufri dkk., 2024): Waspada = suhu ≤ {ambang_suhu:g}°C; Siaga = + angin ≤ 5 m/s; "
                f"Awas = + RH ≥ 60%. Ini kondisi yang sedang terjadi, bukan prediksi.")
+
+
+def _bagian_arsip(bersih):
+    """Simpan data unggahan ke arsip supaya bisa dilihat perkembangannya di Dashboard."""
+    st.markdown("### Arsip data")
+    r = ar.ringkas_arsip()
+    if r["baris"]:
+        st.caption(f"Arsip saat ini: {r['hari']} hari ({r['baris']:,} data 10 menit), "
+                   f"{r['awal']:%d/%m/%Y} sampai {r['akhir']:%d/%m/%Y}.")
+    else:
+        st.caption("Arsip masih kosong.")
+    if st.button("💾 Simpan data ini ke arsip", key="simpan_arsip"):
+        baru, total = ar.simpan_ke_arsip(bersih)
+        st.success(f"Tersimpan: {baru:,} data baru ditambahkan (total arsip {total:,} data). "
+                   f"Lihat di menu Dashboard, pilih sumber data \"Historis + arsip unggahan\".")
+    st.caption("Catatan: arsip tersimpan di server aplikasi. Di Streamlit Community Cloud arsip bisa hilang saat "
+               "aplikasi restart atau di-deploy ulang, dan dipakai bersama semua pengunjung. "
+               "Penyimpanan permanen memerlukan database.")
 
 
 # ----------------------------------------------------------------------------- mode unggah
@@ -156,6 +172,7 @@ def _mode_unggah(paket):
                            format_func=tgl_id)
     _hitung_dan_tampil(bersih, fitur, tanggal, paket, "Unggahan", sampai_besok=False)
     _pemantauan_langsung(bersih, ambang_suhu)
+    _bagian_arsip(bersih)
 
 
 # ----------------------------------------------------------------------------- mode simulasi

@@ -3,6 +3,7 @@ import streamlit as st
 
 from components.charts import grafik_10menit, grafik_agregat, grafik_batang_hari
 from components.notifikasi import BULAN, tgl_id
+from core import arsip as ar
 from core import data as dt
 from core import pipeline as pl
 from core.model import muat_info
@@ -83,16 +84,26 @@ def render_dashboard() -> None:
     st.markdown("## 📊 Dashboard")
 
     pilihan = ["Data historis AWS Batur 2021-2025"]
+    ringkas = ar.ringkas_arsip()
+    versi = dt.versi_arsip()
+    if ringkas["baris"]:
+        pilihan.append(f"Historis + arsip unggahan ({ringkas['hari']} hari baru)")
     if "df_unggahan" in st.session_state:
         pilihan.append(f"File unggahan: {st.session_state.get('nama_unggahan', '')}")
     sumber = st.radio("Sumber data", pilihan, horizontal=True)
-    historis = sumber.startswith("Data historis")
 
-    if historis:
+    if sumber.startswith("Data historis"):
+        historis = True
         df = dt.muat_data_historis()
         harian, mingguan, bulanan, tahunan = dt.agregasi_historis(ambang)
         kunci = "hist"
+    elif sumber.startswith("Historis + arsip"):
+        historis = True
+        df = dt.data_gabungan(versi)
+        harian, mingguan, bulanan, tahunan = dt.agregasi_gabungan(ambang, versi)
+        kunci = "gabung"
     else:
+        historis = False
         df = st.session_state["df_unggahan"]
         harian, mingguan, bulanan, tahunan = pl.buat_agregasi(df, ambang)
         kunci = "unggah"
@@ -110,10 +121,10 @@ def render_dashboard() -> None:
         st.metric("Suhu terendah", f"{harian.loc[idx, 'T_min']:.1f} °C")
         st.caption(f"{tgl_id(idx)} · {harian.loc[idx, 'jam_T_min']} WIB")
     with r3:
-        st.metric("Titik embun terendah (malam-pagi)", f"{harian['Td_min'].min():.1f} °C")
+        st.metric("Jumlah hari data", f"{len(harian):,} hari")
     with r4:
         st.metric(f"Dini hari ≤ {ambang:g}°C", f"{int(harian['berpotensi_aktual'].sum())} hari")
-    st.caption("Titik embun dihitung dari suhu dan RH. Nilai yang sangat rendah biasanya tanda sensor RH bermasalah "
+    st.caption("Catatan: titik embun dihitung dari suhu dan RH. Nilai yang sangat rendah biasanya tanda sensor RH bermasalah "
                "(misal Desember 2024 - Maret 2025), bukan kondisi nyata. Suhu udara lebih bisa diandalkan.")
 
     t10, th, tm, tb, tt = st.tabs(["📈 Per 10 menit", "📅 Harian", "🗓️ Mingguan", "🗒️ Bulanan", "📊 Tahunan"])
@@ -151,3 +162,15 @@ def render_dashboard() -> None:
         _tab_agregat("bulan", bulanan, ambang, f"bulanan_{kunci}", "%Y-%m", dengan_filter=False)
     with tt:
         _tab_agregat("tahun", tahunan, ambang, f"tahunan_{kunci}", "%Y", dengan_filter=False)
+
+    with st.expander("🗂️ Kelola arsip unggahan"):
+        r = ar.ringkas_arsip()
+        if r["baris"] == 0:
+            st.caption("Arsip masih kosong. Simpan data dari menu Prediksi (tombol \"Simpan data ini ke arsip\").")
+        else:
+            st.write(f"Arsip berisi {r['hari']} hari ({r['baris']:,} data 10 menit), "
+                     f"{r['awal']:%d/%m/%Y} sampai {r['akhir']:%d/%m/%Y}.")
+            yakin = st.checkbox("Saya yakin ingin mengosongkan arsip", key="yakin_kosongkan")
+            if st.button("🗑️ Kosongkan arsip", key="kosongkan_arsip") and yakin:
+                ar.kosongkan_arsip()
+                st.rerun()

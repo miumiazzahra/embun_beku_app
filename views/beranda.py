@@ -57,5 +57,6 @@ def render_beranda() -> None:
         st.info("Gunakan menu **Prediksi** di sidebar untuk mulai. Belum punya file? Di sana tersedia "
                 "contoh file dan mode simulasi dari data historis.")
 
-    st.markdown("##### Riwayat prediksi sesi ini")
-    tampilkan_riwayat()
+    if st.session_state.get("riwayat"):
+        st.markdown("##### Riwayat prediksi sesi ini")
+        tampilkan_riwayat()

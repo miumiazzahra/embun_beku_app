@@ -1,4 +1,5 @@
 """Notifikasi peringatan: banner, toast, pesan siap salin, dan riwayat sesi."""
+import textwrap
 import pandas as pd
 import streamlit as st
 
@@ -22,15 +23,16 @@ def tgl_id(ts) -> str:
 
 
 def pesan_peringatan(hasil) -> str:
-    return (
-        f"⚠️ PERINGATAN DINI POTENSI EMBUN BEKU – DIENG\n"
-        f"Tingkat risiko (model): {hasil['tingkat'].upper()}\n"
-        f"Berpotensi terjadi pada dini hari {tgl_id(hasil['untuk_dini_hari'])} (00.00-08.00 WIB)\n"
+    baris = [
+        "⚠️ PERINGATAN DINI POTENSI EMBUN BEKU - DIENG",
+        f"Tingkat risiko (model): {hasil['tingkat'].upper()}",
+        f"Berpotensi pada dini hari {tgl_id(hasil['untuk_dini_hari'])} (00.00-08.00 WIB).",
         f"Kondisi {tgl_id(hasil['tanggal_data'])} sekitar pukul 21.00 WIB: "
-        f"suhu {hasil['T_21']:.1f}°C, RH {hasil['RH_21']:.0f}%\n"
-        f"Saran: {REKOMENDASI[hasil['tingkat']]}\n"
-        f"(Prediksi model berbasis data AWS Batur, bukan peringatan resmi BMKG)"
-    )
+        f"suhu {hasil['T_21']:.1f}°C, RH {hasil['RH_21']:.0f}%.",
+        f"Saran: {REKOMENDASI[hasil['tingkat']]}",
+        "(Prediksi model berbasis data AWS Batur, bukan peringatan resmi BMKG)",
+    ]
+    return "\n".join(textwrap.fill(b, width=62) for b in baris)
 
 
 def tampilkan_banner(hasil) -> None:

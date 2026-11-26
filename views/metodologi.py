@@ -47,14 +47,18 @@ def render_metodologi() -> None:
             f"  → skor ≥ {info['ambang_prob']:.2f} = Berpotensi → tingkat Waspada / Siaga / Awas", language=None)
 
     st.markdown("### 3. Fitur model")
-    st.dataframe(pd.DataFrame({"Fitur": info["fitur"], "Arti": [DESKRIPSI_FITUR.get(k, "") for k in info["fitur"]]}),
-                 use_container_width=True, hide_index=True)
+    with st.expander(f"Lihat {len(info['fitur'])} fitur yang dipakai model"):
+        tabel_fitur = pd.DataFrame({"Fitur": info["fitur"], "Arti": [DESKRIPSI_FITUR.get(k, "") for k in info["fitur"]]})
+        st.dataframe(tabel_fitur, use_container_width=True, hide_index=True, height=35 * (len(tabel_fitur) + 1) + 3)
 
     st.markdown("### 4. Evaluasi (validasi leave-one-year-out)")
     st.markdown("Model dilatih pada 4 tahun dan diuji pada 1 tahun yang tidak ikut dilatih, diulang untuk tiap tahun. "
                 "Baseline = \"kalau dini hari tadi sudah dingin, besok diprediksi dingin juga\".")
-    metrik = pd.DataFrame(info["metrik"]).rename(columns={"model": "Model", "ambang_prob": "Ambang skor"})
-    st.dataframe(metrik, use_container_width=True, hide_index=True)
+    metrik = pd.DataFrame(info["metrik"]).rename(columns={
+        "model": "Model", "recall": "Recall", "precision": "Precision", "ambang_prob": "Ambang skor"})
+    st.dataframe(metrik[["Model", "Recall", "Precision", "F1", "PR-AUC", "Ambang skor"]],
+                 use_container_width=True, hide_index=True)
+    st.caption("Recall = kejadian nyata yang tertangkap. Precision = alarm yang benar-benar diikuti kejadian.")
 
     kiri, kanan = st.columns(2)
     with kiri:
@@ -71,12 +75,18 @@ def render_metodologi() -> None:
                                              "10 fitur terpenting (Random Forest)"), use_container_width=True)
 
     st.markdown("### 5. Pencocokan dengan tanggal berita")
-    berita = pd.DataFrame(info["cek_berita"]).rename(columns={
-        "tanggal_berita": "Tanggal berita", "T_min_dini_AWS": "Suhu min dini hari AWS (°C)",
-        "probabilitas": "Skor model malam sebelumnya", "prediksi_model": "Prediksi"})
-    st.dataframe(berita, use_container_width=True, hide_index=True)
-    st.caption("AWS Batur hanya satu titik. Berita sering menyebut lokasi lain di Dieng yang lebih dingin, "
-               "jadi tanggal berita tidak selalu terlihat dingin di AWS.")
+    berita = pd.DataFrame(info["cek_berita"])
+    ada_data = berita[berita["prediksi_model"] != "tidak ada data"]
+    ditandai = int((ada_data["prediksi_model"] == "Berpotensi").sum())
+    st.markdown(f"Dari **{len(ada_data)} tanggal berita** yang punya data AWS, model menandai **{ditandai}** sebagai berpotensi "
+                f"(prediksi dibuat dari data malam sebelumnya, validasi per tahun).")
+    with st.expander("Lihat tabel per tanggal"):
+        tampil = ada_data.rename(columns={
+            "tanggal_berita": "Tanggal berita", "T_min_dini_AWS": "Suhu min dini hari AWS (°C)",
+            "probabilitas": "Skor model malam sebelumnya", "prediksi_model": "Prediksi"})
+        st.dataframe(tampil, use_container_width=True, hide_index=True, height=35 * (len(tampil) + 1) + 3)
+        st.caption("AWS Batur hanya satu titik. Berita sering menyebut lokasi lain di Dieng yang lebih dingin, "
+                   "jadi tanggal berita tidak selalu terlihat dingin di AWS. Tanggal tanpa data AWS tidak ditampilkan.")
 
     st.markdown("### 6. Keterbatasan")
     st.markdown(

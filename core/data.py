@@ -4,6 +4,7 @@ import io
 import pandas as pd
 import streamlit as st
 
+from core import arsip as ar
 from core import pipeline as pl
 from core.config import DATA_FILE
 
@@ -12,6 +13,10 @@ from core.config import DATA_FILE
 def muat_data_historis():
     df = pd.read_csv(DATA_FILE, index_col=0, parse_dates=True)
     df.index.name = "waktu_wib"
+    # buang hari terakhir yang cuma sebagian (data berhenti di awal 1 Januari 2026)
+    hari_terakhir = df.index[-1].normalize()
+    if len(df.loc[hari_terakhir:]) < 100:
+        df = df.loc[: hari_terakhir - pd.Timedelta(minutes=10)]
     return df
 
 
@@ -57,3 +62,26 @@ def proses_unggahan(isi: bytes, nama: str, zona: str, ambang: float):
         "persen_rh_valid": float(bersih["RH"].notna().mean() * 100),
     }
     return bersih, fitur, laporan
+
+
+def versi_arsip():
+    """Angka yang berubah setiap arsip berubah (dipakai sebagai kunci cache)."""
+    if not ar.ARSIP_FILE.exists():
+        return 0
+    info = ar.ARSIP_FILE.stat()
+    return info.st_mtime_ns + info.st_size
+
+
+@st.cache_data(show_spinner="Menggabungkan data historis dan arsip...")
+def data_gabungan(versi):
+    historis = muat_data_historis()
+    arsip = ar.muat_arsip()
+    if arsip.empty:
+        return historis
+    gabung = pd.concat([historis, arsip])
+    return gabung[~gabung.index.duplicated(keep="last")].sort_index()
+
+
+@st.cache_data(show_spinner="Menghitung agregasi dashboard...")
+def agregasi_gabungan(ambang, versi):
+    return pl.buat_agregasi(data_gabungan(versi), ambang)

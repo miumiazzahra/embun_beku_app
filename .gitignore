@@ -1,5 +1,9 @@
-  venv/
-  .venv/
-  __pycache__/
-  *.xlsx
-  data_mentah.csv
+venv/
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.xlsx
+data_mentah.csv
+data/arsip_unggahan.csv.gz
